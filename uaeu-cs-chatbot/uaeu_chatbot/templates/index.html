@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>UAEU CS Chatbot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+</head>
+
+<body>
+  <div class="page">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">United Arab Emirates University</p>
+        <h1>Computer Science Program Assistant</h1>
+        <p class="tagline">
+          Ask about CS major requirements, electives, credits, or prerequisites. Answers stay grounded in the official
+          UAEU catalog.
+        </p>
+      </div>
+      <div class="status" id="status-pill">Ready</div>
+    </header>
+
+    <main class="chat-card">
+      <div id="messages" class="messages">
+        <div class="message assistant">
+          <p>Hi! I can answer questions about UAEU Computer Science major requirements and electives. Try asking “What
+            is ITBP301?” or “How many credits is CSBP 119?”.</p>
+        </div>
+      </div>
+
+      <form id="chat-form" class="chat-form">
+        <textarea id="question" name="question" rows="2" placeholder="Type your question..." required></textarea>
+        <button type="submit" id="submit-btn">Ask</button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    const form = document.getElementById("chat-form");
+    const questionInput = document.getElementById("question");
+    const messages = document.getElementById("messages");
+    const statusPill = document.getElementById("status-pill");
+    const submitBtn = document.getElementById("submit-btn");
+
+    const appendMessage = (role, text) => {
+      const wrapper = document.createElement("div");
+      wrapper.classList.add("message", role);
+      const paragraph = document.createElement("p");
+      paragraph.innerText = text;
+      wrapper.appendChild(paragraph);
+      messages.appendChild(wrapper);
+      messages.scrollTop = messages.scrollHeight;
+    };
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const question = questionInput.value.trim();
+      if (!question) return;
+
+      appendMessage("user", question);
+      questionInput.value = "";
+      submitBtn.disabled = true;
+      statusPill.innerText = "Thinking…";
+      statusPill.classList.add("busy");
+
+      try {
+        const response = await fetch("/ask", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ question })
+        });
+
+        if (!response.ok) {
+          const payload = await response.json();
+          throw new Error(payload.detail || "Request failed");
+        }
+        const payload = await response.json();
+        appendMessage("assistant", payload.answer);
+      } catch (error) {
+        appendMessage("assistant", `⚠️ ${error.message}`);
+      } finally {
+        submitBtn.disabled = false;
+        statusPill.innerText = "Ready";
+        statusPill.classList.remove("busy");
+      }
+    });
+  </script>
+</body>
+
+</html>

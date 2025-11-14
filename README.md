@@ -42,11 +42,29 @@ Running the Notebook
 4. Execute the notebook top-to-bottom (`Run All`). The first run contacts the catalog and Hugging Face endpoints, so expect a few minutes for scraping + embedding.
 5. Use the final “sample question” cell (or your own) to interact with the chatbot. Queries can reference course codes (`ITBP301`) or names (“Security Principles & Practice”).
 
+Running the Web App
+-------------------
+1. Ensure dependencies are installed (`pip install -r requirements.txt`) and `.env` contains a valid `HF_API_TOKEN`.
+2. From `uaeu-cs-chatbot/`, start the FastAPI server:
+
+   ```
+   uvicorn uaeu_chatbot.webapp:app --reload
+   ```
+
+3. Visit `http://127.0.0.1:8000` to use the styled UI. The first request may take a bit while the catalog index is rebuilt or loaded from `rag_index/`.
+
+Troubleshooting
+---------------
+- **“HF_API_TOKEN is not configured”** – add the token to `.env` or export it before running the notebook/web app.
+- **Hugging Face 4xx/5xx errors** – rerun the failing cell/request; the free inference tier occasionally queues requests.
+- **Course reported as unknown** – rebuild the index so the latest chunks (with alias lines) are embedded, and double-check that the course lives under the targeted catalog sections.
+- **Slow responses** – hosted inference latency depends on the HF plan. Consider reducing `TOP_K_RETRIEVAL`/`GEN_MAX_TOKENS`, or upgrade your HF account.
+
 Repository Layout
 -----------------
 - `uaeu-cs-chatbot/chatbot.ipynb` – main notebook (scraping, indexing, retrieval, chat).
 - `uaeu-cs-chatbot/rag_index/metadata.jsonl` – JSONL metadata produced by the notebook.
 - `uaeu-cs-chatbot/rag_index/vectors.faiss` – FAISS index saved after embedding.
-
+- `uaeu-cs-chatbot/uaeu_chatbot/` – reusable Python package + FastAPI app (`webapp.py`, templates, static assets).
 
 Feel free to adapt the notebook for other UAEU programs by changing the root catalog URL and category filters, or to swap models by updating the config cell.
