@@ -55,6 +55,7 @@ GEN_TOP_P: Final[float] = float(os.getenv("GEN_TOP_P", "0.95"))
 GEN_MAX_TOKENS: Final[int] = int(os.getenv("GEN_MAX_TOKENS", "600"))
 TOP_K_RETRIEVAL: Final[int] = int(os.getenv("TOP_K_RETRIEVAL", "5"))
 
+
 # Toggle to force a rebuild when the web app starts.
 DEFAULT_REBUILD: Final[bool] = os.getenv("CHATBOT_REBUILD", "false").lower() == "true"
 
