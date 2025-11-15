@@ -57,5 +57,6 @@ TOP_K_RETRIEVAL: Final[int] = int(os.getenv("TOP_K_RETRIEVAL", "5"))
 
 
 # Toggle to force a rebuild when the web app starts.
-DEFAULT_REBUILD: Final[bool] = os.getenv("CHATBOT_REBUILD", "false").lower() == "true"
+# DEFAULT_REBUILD: Final[bool] = os.getenv("CHATBOT_REBUILD", "false").lower() == "true"
+DEFAULT_REBUILD: Final[bool] = False
 
