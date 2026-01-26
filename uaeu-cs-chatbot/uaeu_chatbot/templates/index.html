@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+  <link rel="stylesheet" href="../static/styles.css" />
 </head>
 
 <body>
@@ -17,6 +17,11 @@
       <div>
         <p class="eyebrow">United Arab Emirates University</p>
         <h1>Computer Science Program Assistant</h1>
+        <h4 style="padding: 10px;">
+          Please kindly be aware that due to the limited free tier resources provided by the hosting company "Render",
+          performance has been
+          severely degraded. It may take up to 5 minutes to restart the server.
+        </h4>
         <p class="tagline">
           Ask about CS major requirements, electives, credits, or prerequisites. Answers stay grounded in the official
           UAEU catalog.
@@ -69,7 +74,7 @@
       statusPill.classList.add("busy");
 
       try {
-        const response = await fetch("/ask", {
+        const response = await fetch("https://machine-learning-project-et2e.onrender.com/ask", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ question })
