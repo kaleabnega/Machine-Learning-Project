@@ -5,15 +5,13 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, Dict
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 
 import faiss
 
-from .config import STATIC_DIR, TEMPLATES_DIR
 from .pipeline import load_or_build
 from .retrieval import answer_query
 
@@ -31,21 +29,21 @@ class RAGState:
         return self.index, self.chunks
 
 
+APP_DIR = Path(__file__).resolve().parent
+WEB_DIR = APP_DIR / "web"
+
 state = RAGState()
 app = FastAPI(title="UAEU CS Chatbot", version="1.0.0")
 
+app.mount("/web", StaticFiles(directory=str(WEB_DIR)), name="web")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://uaeu-chatbot.netlify.app/"],
+    allow_origins=["https://uaeu-chatbot.netlify.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
-app.mount("/templates/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
-
 
 @app.on_event("startup")
 def _warm_cache() -> None:
@@ -53,10 +51,15 @@ def _warm_cache() -> None:
     state.ensure_ready()
 
 
+# @app.get("/", response_class=HTMLResponse)
+# async def home(request: Request) -> HTMLResponse:
+#     """Render the chat UI."""
+#     return templates.TemplateResponse("index.html", {"request": request})
+
+
 @app.get("/", response_class=HTMLResponse)
-async def home(request: Request) -> HTMLResponse:
-    """Render the chat UI."""
-    return templates.TemplateResponse("index.html", {"request": request})
+def home():
+    return (WEB_DIR / "index.html").read_text(encoding="utf-8")
 
 
 @app.post("/ask")
@@ -71,4 +74,3 @@ async def ask(payload: Dict[str, Any]) -> JSONResponse:
 
 
 __all__ = ["app"]
-
